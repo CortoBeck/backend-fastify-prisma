@@ -1,11 +1,11 @@
 
+
 const books = [];
 
 async function booksMemoryRoute(fastify, options) {
 
   fastify.get('/', async (request, reply) => {
-    //  ⚙️🔥 write your code here ⚙️🔥
-    reply.code(404).send({ error: 'Not implemented' });
+    reply.code(200).send(books);
   });
 
   const getBookSchema = {
@@ -18,8 +18,14 @@ async function booksMemoryRoute(fastify, options) {
   };
 
   fastify.get('/:id', { schema: getBookSchema }, async (request, reply) => {
-    //  ⚙️🔥 write your code here ⚙️🔥
-    reply.code(404).send({ error: 'Not implemented' });
+    const { id } = request.params;
+    const book = books.find((b) => b.id === id);
+
+    if (!book) {
+      return reply.code(404).send({ error: 'Book not found' });
+    }
+
+    reply.code(200).send(book);
   });
 
   const createBookSchema = {
@@ -34,8 +40,10 @@ async function booksMemoryRoute(fastify, options) {
   };
 
   fastify.post('/', { schema: createBookSchema }, async (request, reply) => {
-    //  ⚙️🔥 write your code here ⚙️🔥
-    reply.code(404).send({ error: 'Not implemented' });
+    const { title, author } = request.body;
+    const newBook = {id:books.length , title: title, author: author };
+    books.push(newBook);
+    reply.code(201).send(newBook);
   });
 
   const updateBookSchema = {
@@ -56,8 +64,16 @@ async function booksMemoryRoute(fastify, options) {
   };
 
   fastify.put('/:id', { schema: updateBookSchema }, async (request, reply) => {
-    //  ⚙️🔥 write your code here ⚙️🔥
-    reply.code(404).send({ error: 'Not implemented' });
+    const { id } = request.params;
+    const { title, author } = request.body;
+
+    const bookIndex = books.findIndex((b) => b.id === id);
+    if (bookIndex === -1) {
+      return reply.code(404).send({ error: 'Book not found' });
+    }
+
+    books[bookIndex] = { id, title, author };
+    reply.code(200).send(books[bookIndex]);
   });
 
   const deleteBookSchema = {
@@ -68,9 +84,16 @@ async function booksMemoryRoute(fastify, options) {
       },
     },
   };
+
   fastify.delete('/:id', { schema: deleteBookSchema }, async (request, reply) => {
-    //  ⚙️🔥 write your code here ⚙️🔥
-    reply.code(404).send({ error: 'Not implemented' });
+    const { id } = request.params;
+    const bookIndex = books.findIndex((b) => b.id === id);
+    if (bookIndex === -1) {
+      return reply.code(404).send({ error: 'Book not found' });
+    }
+
+    books.splice(bookIndex, 1);
+    reply.code(204).send();
   });
 }
 
